@@ -288,15 +288,8 @@ def main():
             download_manga()
         case _:
             print("Oops!")
-    # create entry is done via search manga
     # update entry
     # used to update if manga is complete, chapter count, etc
-
-    # scrape entry (rarely used, maybe remove) - has to update lastRipped in json file
-    # used to scrape and rip images and organize them in folders according to series and chapter
-
-    # update and scrape entry
-    # calls both in order to keep my library updated - QOL
 
     # delete entry
     # remove entry (drop a title) - or just add a "DROPPED" tag which ignores all other commands
