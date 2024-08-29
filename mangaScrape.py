@@ -196,7 +196,7 @@ def download_handler(chapter_list, manga_idx):
           " at chapter " + chapter_list[download_start_idx])
 
     # we want to check if there exists x amount of pages:
-    default_pages = 5
+    default_pages = 10
     for i in reversed(range(download_start_idx+1)):
         # verify that chapter_list[i] is NOT out of range
         if (0 <= i) and (i < len(chapter_list)):
@@ -212,7 +212,7 @@ def download_handler(chapter_list, manga_idx):
                 with open('mangaData.json', "w") as outfile:
                     json.dump(data, outfile, indent=4)
             default_pages = default_pages-1
-            time.sleep(randint(20, 47))
+            time.sleep(randint(29, 62))
         else:
             print("No more chapters to gather: Last updated at " +
                   data[manga_idx]['lastUpdated'])
