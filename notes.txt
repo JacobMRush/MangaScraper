@@ -1,0 +1,9 @@
+Goals:
+
+User can look up manga/manhwa via base urls - can choose to add to list of manga/manhwa
+	- If added, create a new entry in mangaData.json, this will contain all information for manga/manhwa we grab
+
+Update manga/manhwa on a timer (weekly basis)?
+	- Update metadata/chapter length and check for new chapter, if new chapter download images
+	- Downloaded till - which chapter have we grabbed till? 
+	
