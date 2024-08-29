@@ -16,13 +16,6 @@ mangaSeeBase = "https://mangasee123.com"
 mangakakalotBase = "https://https://mangakakalot.com"
 headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 
-mangaSee = [
-    "https://mangasee123.com/manga/Omniscient-Readers-Viewpoint ",
-    "https://mangasee123.com/manga/Tower-Of-God"
-]
-mangakakalotBase = [
-
-]
 BASE_DLPATH = "D:/MANGA STORAGE"
 
 
