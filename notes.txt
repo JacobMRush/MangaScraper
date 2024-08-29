@@ -6,6 +6,8 @@ Goals:
 	- How do I determine if the manga already has some type of volume delineation?
 	- make sure they do have said delineation if they do not
 
+-Add support for other sources (mangakalot - something that I required from my previous tachiyomi library)
+
 -Update manga will update mangaData.json data
 	- user will select update data and we can update manga entries that haven't been updated in x period of time
 
