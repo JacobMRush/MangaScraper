@@ -225,6 +225,8 @@ def rip_manga(page, data, manga_idx):
     chapter_folder = soup.select_one(
         'button[data-target="#ChapterModal"]').text
     chapter_folder = chapter_folder.strip('\n\t ')
+    if '-' not in chapter_folder:
+        chapter_folder = 'S0 - ' + chapter_folder
     image_elements = soup.find_all('img', class_="img-fluid")
     # MANGA FOLDER / TITLE FOLDER / CHAPTER FOLDER
     # Chapter information can be taken from the target data chapter button
@@ -251,7 +253,6 @@ def rip_manga(page, data, manga_idx):
                 noop = f.write(response.content)
                 print("Saved {}".format(BASE_DLPATH + "/" + data[manga_idx]['title'] +
                       "/" + chapter_folder + '/' + fileName))
-        time.sleep(randint(1, 4))
     return True
 # manga_list_lookup(mangaSee, mangaSeeBase)
 
