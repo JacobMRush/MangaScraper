@@ -194,28 +194,31 @@ def download_handler(chapter_list, manga_idx):
     # update lastRipped each time I get a sucesss from rip_manga()
     print("Starting from: " + str(download_start_idx) +
           " at chapter " + chapter_list[download_start_idx])
-
     # we want to check if there exists x amount of pages:
     default_pages = 10
+    if (download_start_idx < 0):
+        print("No more chapters to gather: Last updated at " +
+              data[manga_idx]['lastUpdated'] + " with chapter " + data[manga_idx]["lastChapter"])
+        return
     for i in reversed(range(download_start_idx+1)):
         # verify that chapter_list[i] is NOT out of range
-        if (0 <= i) and (i < len(chapter_list)):
-            print(chapter_list[i] + " WE ARE HERE " +
-                  str(default_pages) + " pages left")
-            if (default_pages == 0):
-                break
-            if rip_manga(data[manga_idx]['source'] + chapter_list[i], data, manga_idx) != True:
-                break
-            else:
-                print("Update the data with the latest lastRipped")
-                data[manga_idx]['lastRipped'] = chapter_list[i]
-                with open('mangaData.json', "w") as outfile:
-                    json.dump(data, outfile, indent=4)
-            default_pages = default_pages-1
-            time.sleep(randint(29, 62))
+        print(chapter_list[i] + " WE ARE HERE " +
+              str(default_pages) + " pages left")
+        if (default_pages == 0):
+            break
+        if rip_manga(data[manga_idx]['source'] + chapter_list[i], data, manga_idx) != True:
+            break
         else:
+            print("Update the data with the latest lastRipped")
+            data[manga_idx]['lastRipped'] = chapter_list[i]
+            with open('mangaData.json', "w") as outfile:
+                json.dump(data, outfile, indent=4)
+        default_pages = default_pages-1
+        time.sleep(randint(29, 62))
+        if (0 >= i-1) and (i-1 > len(chapter_list)):
             print("No more chapters to gather: Last updated at " +
                   data[manga_idx]['lastUpdated'])
+            break
 
 
 def rip_manga(page, data, manga_idx):
@@ -236,6 +239,7 @@ def rip_manga(page, data, manga_idx):
     except FileExistsError:
         return False
     # make request for each image src :)
+    image_count = 0
     for img in image_elements:
         img_src = img.get('src')
         chapter_images.append(img_src)
@@ -253,6 +257,9 @@ def rip_manga(page, data, manga_idx):
                 noop = f.write(response.content)
                 print("Saved {}".format(BASE_DLPATH + "/" + data[manga_idx]['title'] +
                       "/" + chapter_folder + '/' + fileName))
+        image_count += 1
+        if image_count % 10 == 0:
+            time.sleep(randint(9, 15))
     return True
 # manga_list_lookup(mangaSee, mangaSeeBase)
 
