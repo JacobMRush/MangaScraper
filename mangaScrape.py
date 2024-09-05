@@ -273,19 +273,35 @@ def rip_manga(page, data, manga_idx):
 # store images under "Chapter XX" folder
 # function to update mangaData
 
+
+# function to get list of all reading material (to decide what to update/download)
+def view_manga():
+    with open("mangaData.json", "r") as f:
+        data = json.load(f)
+    item_number = 0
+    for item in range(len(data)):
+        item_number += 1
+        print(str(item_number) + ": " +
+              data[item]['title'] + " at index " + str(item_number-1))
+
+
 def main():
     print("Hello, welcome and select your required operation")
-    print("1. Search/Select Manga")
-    print("2. Update MangaData")
-    print("3. Download Manga")
+    print("1. View manga list")
+    print("2. Search/Select Manga")
+    print("3. Update Manga data")
+    print("4. Download Manga")
+
     selection = input()
 
     match selection:
         case "1":
-            search_manga()
+            view_manga()
         case "2":
-            update_entry()
+            search_manga()
         case "3":
+            update_entry()
+        case "4":
             download_manga()
         case _:
             print("Oops!")
