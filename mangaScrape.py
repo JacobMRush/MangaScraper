@@ -61,20 +61,6 @@ def search_manga():
         print("Please choose a correct index, the current index is out of range")
 
 
-def manga_list_lookup(links, mangaSite):
-    for link in links:
-        driver.get(link)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        find_latest(soup, mangaSite)
-
-
-def find_latest(soup, mangaSite):
-    link = soup.find('a', class_="list-group-item")
-    latestChapter = mangaSite + link['href'].replace("-page-1", "")
-    print(latestChapter)
-    rip_manga(latestChapter)
-
-
 def create_entry(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
     # check if selected title is saved in file, if not go for it!
     raw_manga_data = selectedManga.findAll('div', "ng-scope")
@@ -138,10 +124,20 @@ def insert_to_file(new_entry):
 
 
 def update_entry():
-    print('a')
+    # SELECT A MANGA TO UPDATE
+    with open("mangaData.json", "r") as f:
+        data = json.load(f)
+    selected_manga = input("Select a manga to update")
+    view_manga()
+    selected_manga = selected_manga - 1
+    print("You've chosen to update: " + data[selected_manga]['title'])
+    # Request data[selected_manga]['link'] and update information
+    driver.get(data[selected_manga]['link'])
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    # update lastUpdated, lastChapter, type, and status
+
     # if data entry with manga name and link DNE, call create_entry
     # otherwise continue here
-    # take information from find latest
     # update mangaData.json with latest chapter, metadata,
 
 
@@ -283,6 +279,16 @@ def view_manga():
         item_number += 1
         print(str(item_number) + ": " +
               data[item]['title'] + " at index " + str(item_number-1))
+    # add ability to get data after selecting a manga, "status, lastUpdated, lastChapter, lastRipped"
+    selected_manga = input("Select a manga to get more details: ")
+    selected_manga = int(selected_manga) - 1
+    print("Here is some information on the manga you selected: ")
+    print(data[selected_manga]['title'])
+    print("-------------------------------")
+    print(data[selected_manga]['status'])
+    print(data[selected_manga]['lastUpdated'])
+    print(data[selected_manga]['lastChapter'])
+    print(data[selected_manga]['lastRipped'])
 
 
 def main():
