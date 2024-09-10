@@ -259,18 +259,9 @@ def rip_manga(page, data, manga_idx):
     return True
 # manga_list_lookup(mangaSee, mangaSeeBase)
 
-
-# function to query our webpages (manga main pages with list of chapters) ------------ DONE
-# what is the latest chapter       ---------------- DONE
-
-
-# function that rips images from actual chapter page
-# rip images from selected chapter page
-# store images under "Chapter XX" folder
-# function to update mangaData
-
-
 # function to get list of all reading material (to decide what to update/download)
+
+
 def view_manga():
     with open("mangaData.json", "r") as f:
         data = json.load(f)
@@ -283,12 +274,13 @@ def view_manga():
     selected_manga = input("Select a manga to get more details: ")
     selected_manga = int(selected_manga) - 1
     print("Here is some information on the manga you selected: ")
-    print(data[selected_manga]['title'])
     print("-------------------------------")
+    print(data[selected_manga]['title'])
     print(data[selected_manga]['status'])
     print(data[selected_manga]['lastUpdated'])
     print(data[selected_manga]['lastChapter'])
     print(data[selected_manga]['lastRipped'])
+    print("-------------------------------")
 
 
 def main():
@@ -311,8 +303,6 @@ def main():
             download_manga()
         case _:
             print("Oops!")
-    # update entry
-    # used to update if manga is complete, chapter count, etc
 
     # delete entry
     # remove entry (drop a title) - or just add a "DROPPED" tag which ignores all other commands
