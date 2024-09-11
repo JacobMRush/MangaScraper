@@ -8,57 +8,50 @@ from selenium.webdriver.common.by import By
 import time
 from random import randint
 
+from mangakakalot import search_mangakakalot_helper
+from mangasee import search_mangasee_helper
+
 options = ChromeOptions()
 options.add_argument("--headless=new")
 options.add_argument("--log-level=3")
 driver = webdriver.Chrome(options=options)
 mangaSeeBase = "https://mangasee123.com"
-mangakakalotBase = "https://https://mangakakalot.com"
+mangakakalotBase = "https://mangakakalot.com"
 headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 
 BASE_DLPATH = "D:/MANGA STORAGE"
 
 
 def search_manga():
+    full_manga_list = []
     user_manga = input("Enter manga: ")
-    search_url = "https://mangasee123.com/search/?name=" + user_manga
-    driver.get(search_url)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    manga_dne = soup.find('div', class_="NoResults")
-    if manga_dne:
-        print("Please enter a valid manga name, " + user_manga + " not found")
-        return -1
-    # continue and show user list of manga names and links
-    manga_results = soup.find_all('a', class_="SeriesName ng-binding")
-    # now we have a list of manga results
-    # take these and their names and display them to the user, ask the user to select one, and ask if the user would like to add that manga
-    # to their list
-    for i in range(len(manga_results)):
-        list_num = i+1
-        print(str(list_num) + ". " + manga_results[i].text)
+    full_manga_list.extend(search_mangasee_helper(user_manga))
+    full_manga_list.extend(search_mangakakalot_helper(user_manga))
+    # these will each return a list of manga available via search, append to a larger list, and the user will select via that list
+    # print full manga list with titles and source
     selected_manga = input("Select a manga from the list: ")
-    if 0 <= int(selected_manga)-1 <= len(manga_results):
+    if 0 <= int(selected_manga)-1 <= len(full_manga_list):
         print("You have selected " +
-              manga_results[int(selected_manga)-1].text + "! ")
-        answer = input(
-            "Would you like to add this manga to your library? Y/N: ")
-        if answer == "Y" or answer == "y":
-            print("yes")
-            selected_manga_title = manga_results[int(selected_manga)-1].text
-            print(selected_manga_title)
-            print("--------------------")
-            # send title and genre seperately than the rest of raw data
-            manga_genre_tags = manga_results[int(
-                selected_manga)-1].parent.findAll('span', "ng-binding ng-scope")
-            create_entry(selected_manga_title,
-                         manga_results[int(selected_manga)-1].parent, manga_genre_tags, manga_results[int(
-                             selected_manga)-1]['href'], mangaSeeBase)
-
-        else:
-            print("Item not added")
-            return
-    else:
-        print("Please choose a correct index, the current index is out of range")
+              full_manga_list[int(selected_manga)-1].text + "! ")
+        # answer = input(
+        #    "Would you like to add this manga to your library? Y/N: ")
+        # if answer == "Y" or answer == "y":
+        #    print("yes")
+        #    selected_manga_title = manga_results[int(selected_manga)-1].text
+        #    print(selected_manga_title)
+        #    print("--------------------")
+        #    # send title and genre seperately than the rest of raw data
+        #    manga_genre_tags = manga_results[int(
+        #        selected_manga)-1].parent.findAll('span', "ng-binding ng-scope")
+        #    create_entry(selected_manga_title,
+        #                 manga_results[int(selected_manga)-1].parent, manga_genre_tags, manga_results[int(
+        #                     selected_manga)-1]['href'], mangaSeeBase)
+        #
+        # else:
+        #    print("Item not added")
+        #    return
+    # else:
+    #    print("Please choose a correct index, the current index is out of range")
 
 
 def create_entry(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
@@ -309,20 +302,19 @@ def main():
     print("3. Update Manga data")
     print("4. Download Manga")
 
-    selection = input()
-
-    match selection:
-        case "1":
-            view_manga_data()
-        case "2":
-            search_manga()
-        case "3":
-            update_entry()
-        case "4":
-            download_manga()
-        case _:
-            print("Oops!")
-
+    # selection = input()
+    search_manga()
+    # match selection:
+    #    case "1":
+    #        view_manga_data()
+    #    case "2":
+    #        search_manga()
+    #    case "3":
+    #        update_entry()
+    #    case "4":
+    #        download_manga()
+    #    case _:
+    #        print("Oops!")
     # delete entry
     # remove entry (drop a title) - or just add a "DROPPED" tag which ignores all other commands
 
