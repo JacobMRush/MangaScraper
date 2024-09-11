@@ -124,21 +124,36 @@ def insert_to_file(new_entry):
 
 
 def update_entry():
-    # SELECT A MANGA TO UPDATE
-    with open("mangaData.json", "r") as f:
-        data = json.load(f)
-    selected_manga = input("Select a manga to update")
-    view_manga()
-    selected_manga = selected_manga - 1
+    type_info = -1
+    status_info = -1
+    full_status = -1
+    data = view_manga()
+    selected_manga = input("Select a entry to update: ")
+    selected_manga = int(selected_manga) - 1
     print("You've chosen to update: " + data[selected_manga]['title'])
-    # Request data[selected_manga]['link'] and update information
     driver.get(data[selected_manga]['link'])
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    # update lastUpdated, lastChapter, type, and status
-
-    # if data entry with manga name and link DNE, call create_entry
-    # otherwise continue here
-    # update mangaData.json with latest chapter, metadata,
+    manga_page = soup.findAll("li", class_="list-group-item d-none d-md-block")
+    for item in manga_page:
+        item_header = item.find('span', class_="mlabel").text
+        if (item_header == "Status:"):
+            status_info = item.findAll('a').text
+        elif (item_header == "Type:"):
+            type_info = item.find('a').text
+    if (status_info == "" or status_info == [] or status_info == None):
+        print("No status info found")
+        status_info = -1
+    if (type_info == "" or type_info == None):
+        print("No Type found")
+        type_info = -1
+    # select latest chapter, get chapter number and date it was posted
+    if (type_info != -1):
+        data[selected_manga]['type'] = type_info
+    if (len(status_info) == 1):
+        full_status = status_info[0]
+    elif (len(status_info) == 2):
+        full_status = status_info[0] + ', ' + status_info[1]
+    print(full_status)
 
 
 def download_manga():
@@ -270,7 +285,11 @@ def view_manga():
         item_number += 1
         print(str(item_number) + ": " +
               data[item]['title'] + " at index " + str(item_number-1))
-    # add ability to get data after selecting a manga, "status, lastUpdated, lastChapter, lastRipped"
+    return data
+
+
+def view_manga_data():
+    data = view_manga()
     selected_manga = input("Select a manga to get more details: ")
     selected_manga = int(selected_manga) - 1
     print("Here is some information on the manga you selected: ")
@@ -294,7 +313,7 @@ def main():
 
     match selection:
         case "1":
-            view_manga()
+            view_manga_data()
         case "2":
             search_manga()
         case "3":
