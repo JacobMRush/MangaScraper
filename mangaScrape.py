@@ -36,7 +36,7 @@ def search_manga_ms():
     for i in range(len(manga_results)):
         list_num = i+1
         print(str(list_num) + ". " + manga_results[i].text)
-    selected_manga = input("Select a manga from the list: ")
+    selected_manga = input("Select a manga from the given list: ")
     if 0 <= int(selected_manga)-1 <= len(manga_results):
         print("You have selected " +
               manga_results[int(selected_manga)-1].text + "! ")
@@ -77,6 +77,37 @@ def search_manga_mk():
         title = title.replace('\n', "").replace('\t', "").strip()
         list_num = i+1
         print(str(list_num) + ". " + title)
+    selected_manga = input("Select a manga from the given list: ")
+    if 0 <= int(selected_manga)-1 <= len(manga_data_list):
+        title = manga_data_list[int(
+            selected_manga)-1].find('h3', class_="story_name").text
+        title = title.replace('\n', "").replace('\t', "").strip()
+        print("You have selected " +
+              title + "! ")
+        # gather and clean available data
+        # title, lastUpdated, author, genres, lastChapter,
+        #    {
+        # "author": "Bread-Eating Squirrel,  DJ Gonglyong",
+        # "released": "2021",
+        # "status": "Ongoing (Scan), Ongoing (Publish)",
+        # "lastChapter": "88",
+        # "lastUpdated": "08/23/2024",
+        # "translation": "Official Translation",
+        # "title": "Demon Devourer",
+        # "genres": [
+        #    "DJ Gonglyong",
+        #    "Action",
+        #    "Drama",
+        #    "Fantasy",
+        #    "Shounen"
+        # ],
+        # "type": "",
+        # "link": "https://mangasee123.com/manga/Talent-Swallowing-Magician",
+        # "source": "https://mangasee123.com",
+        # "lastRipped": "/read-online/Talent-Swallowing-Magician-chapter-75.html"
+    else:
+        print("Please select a valid item from the list")
+        return
 
 
 def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
