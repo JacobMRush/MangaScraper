@@ -14,13 +14,22 @@ mangakakalotBase = "https://mangakakalot.com"
 
 
 def search_mangakakalot_helper(user_manga):
-    mk_manga_results = [mangakakalotBase]
+    mk_manga_results = []
     # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
     search_url = "https://mangakakalot.com/search/story/${user_manga}"
     driver.get(search_url)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    manga_dne = soup.find('div', class_="panel_story_list")
+    manga_results = soup.find('div', class_="panel_story_list")
+    manga_results = soup.findAll('div', class_="story_item_right")
+    if (manga_results == []):
+        print("Nothing found on mangakakalot, please retry your search or select from another source")
+        return []
+    # list of manga results and data
     return mk_manga_results
+
+
+def mk_create_entry_helper():
+    print('a')
 
 
 def scrape_mangakakalot():

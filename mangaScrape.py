@@ -23,16 +23,27 @@ BASE_DLPATH = "D:/MANGA STORAGE"
 
 
 def search_manga():
-    full_manga_list = []
+    manga_source_search = -1
+    mangaSeeFlag = -1
+    # print mangasee,print mangakalot (EACH IF THE ARRAY IS NOT EMPTY)
     user_manga = input("Enter manga: ")
-    full_manga_list.extend(search_mangasee_helper(user_manga))
-    full_manga_list.extend(search_mangakakalot_helper(user_manga))
-    # these will each return a list of manga available via search, append to a larger list, and the user will select via that list
-    # print full manga list with titles and source
+    print("1. Mangasee")
+    print("2. Mangakakalot")
+    selected_source = input('Select a source to search from: ')
+    if (selected_source == 1):
+        manga_source_search = (search_mangasee_helper(user_manga))
+        mangaSeeFlag = 1
+    elif (selected_source == 2):
+        manga_source_search = (search_mangakakalot_helper(user_manga))
+    else:
+        print("Please select a number in the given range (1-2)")
+        return
     selected_manga = input("Select a manga from the list: ")
-    if 0 <= int(selected_manga)-1 <= len(full_manga_list):
-        print("You have selected " +
-              full_manga_list[int(selected_manga)-1].text + "! ")
+    if 0 <= int(selected_manga)-1 <= len(manga_source_search):
+        # process data based on selected source
+        if (mangaSeeFlag):
+            print("You have selected " +
+                  manga_source_search[int(selected_manga)-1].text + "! ")
         # answer = input(
         #    "Would you like to add this manga to your library? Y/N: ")
         # if answer == "Y" or answer == "y":
@@ -50,8 +61,8 @@ def search_manga():
         # else:
         #    print("Item not added")
         #    return
-    # else:
-    #    print("Please choose a correct index, the current index is out of range")
+    else:
+        print("Please choose a correct index, the current index is out of range")
 
 
 def create_entry(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):

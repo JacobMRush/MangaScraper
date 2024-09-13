@@ -14,7 +14,7 @@ mangaSeeBase = "https://mangasee123.com"
 
 
 def search_mangasee_helper(user_manga):
-    ms_manga_results = [mangaSeeBase]
+    ms_manga_results = []
     # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
     search_url = "https://mangasee123.com/search/?name=" + user_manga
     driver.get(search_url)
@@ -22,9 +22,13 @@ def search_mangasee_helper(user_manga):
     manga_dne = soup.find('div', class_="NoResults")
     if manga_dne:
         print("Please enter a valid manga name, " + user_manga + " not found")
-        return
+        return []
     # continue and show user list of manga names and links
     manga_results = soup.find_all('a', class_="SeriesName ng-binding")
     for i in range(len(manga_results)):
         ms_manga_results.append(manga_results[i])
     return ms_manga_results
+
+
+def ms_create_entry_helper():
+    print('a')
