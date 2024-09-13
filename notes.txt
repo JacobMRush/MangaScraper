@@ -20,6 +20,9 @@ Thoughts on implementation:
 	- user will select update data and we can update manga entries that haven't been updated in x period of time
 	- check if new information is different from previous information
 
+Fix required for genre reading portion on mangasee, sometimes reading in author or distrubtor as a genre
+
+
 -Automatically move the scraped files to my nas under the reader's (Kavita's) shared folders
 	-Check Manga Folder on D: drive, if folders exist, verify they have data in them
 	- Migrate to either new or existing folder
@@ -46,3 +49,4 @@ SEPERATION NOTES:
 		-Getting new info, cleaning info will be specialized
 		-Not sure if mangakakalot will be able to be scraped the same way, the CDN automatically blocks any IP that attempts to open their image links through a browser
 		-Not sure if its because of referer being missing when opening the link seperately, will test to verify later.
+		Can recieve images if i put referer from the host website. I need to be more careful on information validation (file type and source validation)

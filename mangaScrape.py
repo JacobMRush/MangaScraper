@@ -19,7 +19,7 @@ headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, 
 BASE_DLPATH = "D:/MANGA STORAGE"
 
 
-def search_manga():
+def search_manga_ms():
     user_manga = input("Enter manga: ")
     search_url = "https://mangasee123.com/search/?name=" + user_manga
     driver.get(search_url)
@@ -36,7 +36,7 @@ def search_manga():
     for i in range(len(manga_results)):
         list_num = i+1
         print(str(list_num) + ". " + manga_results[i].text)
-    selected_manga = input("Select a manga from the list: ")
+    selected_manga = input("Select a manga from the given list: ")
     if 0 <= int(selected_manga)-1 <= len(manga_results):
         print("You have selected " +
               manga_results[int(selected_manga)-1].text + "! ")
@@ -50,9 +50,9 @@ def search_manga():
             # send title and genre seperately than the rest of raw data
             manga_genre_tags = manga_results[int(
                 selected_manga)-1].parent.findAll('span', "ng-binding ng-scope")
-            create_entry(selected_manga_title,
-                         manga_results[int(selected_manga)-1].parent, manga_genre_tags, manga_results[int(
-                             selected_manga)-1]['href'], mangaSeeBase)
+            create_entry_ms(selected_manga_title,
+                            manga_results[int(selected_manga)-1].parent, manga_genre_tags, manga_results[int(
+                                selected_manga)-1]['href'], mangaSeeBase)
 
         else:
             print("Item not added")
@@ -61,7 +61,56 @@ def search_manga():
         print("Please choose a correct index, the current index is out of range")
 
 
-def create_entry(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
+def search_manga_mk():
+    user_manga = input("Enter manga: ")
+    # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
+    search_url = "https://mangakakalot.com/search/story/" + user_manga
+    driver.get(search_url)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    manga_data_list = soup.findAll('div', class_="story_item")
+    if (manga_data_list == []):
+        print("Nothing found on mangakakalot, please retry your search or select from another source")
+        return
+    # process data and then create a entry in mangadata.json
+    for i in range(len(manga_data_list)):
+        title = manga_data_list[i].find('h3', class_="story_name").text
+        title = title.replace('\n', "").replace('\t', "").strip()
+        list_num = i+1
+        print(str(list_num) + ". " + title)
+    selected_manga = input("Select a manga from the given list: ")
+    if 0 <= int(selected_manga)-1 <= len(manga_data_list):
+        title = manga_data_list[int(
+            selected_manga)-1].find('h3', class_="story_name").text
+        title = title.replace('\n', "").replace('\t', "").strip()
+        print("You have selected " +
+              title + "! ")
+        # gather and clean available data
+        # title, lastUpdated, author, genres, lastChapter,
+        #    {
+        # "author": "Bread-Eating Squirrel,  DJ Gonglyong",
+        # "released": "2021",
+        # "status": "Ongoing (Scan), Ongoing (Publish)",
+        # "lastChapter": "88",
+        # "lastUpdated": "08/23/2024",
+        # "translation": "Official Translation",
+        # "title": "Demon Devourer",
+        # "genres": [
+        #    "DJ Gonglyong",
+        #    "Action",
+        #    "Drama",
+        #    "Fantasy",
+        #    "Shounen"
+        # ],
+        # "type": "",
+        # "link": "https://mangasee123.com/manga/Talent-Swallowing-Magician",
+        # "source": "https://mangasee123.com",
+        # "lastRipped": "/read-online/Talent-Swallowing-Magician-chapter-75.html"
+    else:
+        print("Please select a valid item from the list")
+        return
+
+
+def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
     # check if selected title is saved in file, if not go for it!
     raw_manga_data = selectedManga.findAll('div', "ng-scope")
     cleanData = []
@@ -111,6 +160,8 @@ def create_entry(selectedTitle, selectedManga, manga_genre_tags, search_url, bas
     }
     insert_to_file(new_entry)
 
+# STAYS THE SAME ON UPDATE
+
 
 def insert_to_file(new_entry):
     # managed json file
@@ -121,6 +172,8 @@ def insert_to_file(new_entry):
     print(data)
     with open('mangaData.json', "w") as outfile:
         json.dump(data, outfile, indent=4)
+
+# WIP
 
 
 def update_entry():
@@ -156,7 +209,12 @@ def update_entry():
     print(full_status)
 
 
-def download_manga():
+def download_manga_mk():
+    print('a')
+# MANGASEE
+
+
+def download_manga_ms():
     found_list_idx = []
     # figure out which entry we want to rip from
     # pass pages with some debounce timer or something inbetween each scrape
@@ -173,6 +231,8 @@ def download_manga():
         realIdx = found_list_idx[int(selected_manga_idx)-1]
         get_chapter_list(realIdx)
 
+# MANGASEE HELPER
+
 
 def get_chapter_list(manga_idx):
     chapter_list = []
@@ -187,6 +247,8 @@ def get_chapter_list(manga_idx):
     for i in range(len(anchor_tags)):
         chapter_list.append(anchor_tags[i]['href'].replace("-page-1", ""))
     download_handler(chapter_list, manga_idx)
+
+# MANGASEE HELPER
 
 
 def download_handler(chapter_list, manga_idx):
@@ -231,6 +293,8 @@ def download_handler(chapter_list, manga_idx):
                   data[manga_idx]['lastUpdated'])
             break
 
+# MANGASEE IMAGE SCRAPER
+
 
 def rip_manga(page, data, manga_idx):
     driver.get(page)
@@ -272,9 +336,32 @@ def rip_manga(page, data, manga_idx):
         if image_count % 10 == 0:
             time.sleep(randint(9, 15))
     return True
-# manga_list_lookup(mangaSee, mangaSeeBase)
 
-# function to get list of all reading material (to decide what to update/download)
+# MANGAKAKALOT SCRAPER
+
+
+def scrape_mangakakalot(page):
+    chapter_images = []
+    search_url = "https://chapmanganato.to/manga-aa951883/chapter-613"
+    driver.get(search_url)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    image_container = soup.find('div', class_="container-chapter-reader")
+    all_images = image_container.findAll('img')
+    for img in all_images:
+        if (img.has_attr('title')):
+            img_src = img.get('src')
+            chapter_images.append(img_src)
+    print(chapter_images)
+    for image_url in chapter_images:
+        response = requests.get(image_url, headers={
+                                'UserAgent': headers, 'referer': "https://chapmanganato.to/"})
+        if (response.status_code != 200):
+            print("Error getting the current file")
+            return False
+        else:
+            print("Woooo we have our images")
+
+# STAYS THE SAME
 
 
 def view_manga():
@@ -305,9 +392,11 @@ def view_manga_data():
 def main():
     print("Hello, welcome and select your required operation")
     print("1. View manga list")
-    print("2. Search/Select Manga")
-    print("3. Update Manga data")
-    print("4. Download Manga")
+    print("2. Search/Select Manga - Mangasee")
+    print("3. Search/Select Manga - Mangakakalot")
+    print("4. Update Manga data")
+    print("5. Download Manga - Mangasee")
+    print("6. Download Manga - Mangakakalot")
 
     selection = input()
 
@@ -315,16 +404,17 @@ def main():
         case "1":
             view_manga_data()
         case "2":
-            search_manga()
+            search_manga_ms()
         case "3":
-            update_entry()
+            search_manga_mk()
         case "4":
-            download_manga()
+            update_entry()
+        case "5":
+            download_manga_ms()
+        case "6":
+            download_manga_mk()
         case _:
             print("Oops!")
-
-    # delete entry
-    # remove entry (drop a title) - or just add a "DROPPED" tag which ignores all other commands
 
 
 main()
