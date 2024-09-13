@@ -64,15 +64,19 @@ def search_manga_ms():
 def search_manga_mk():
     user_manga = input("Enter manga: ")
     # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
-    search_url = "https://mangakakalot.com/search/story/${user_manga}"
+    search_url = "https://mangakakalot.com/search/story/" + user_manga
     driver.get(search_url)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    manga_results = soup.find('div', class_="panel_story_list")
-    manga_results = soup.findAll('div', class_="story_item_right")
-    if (manga_results == []):
+    manga_data_list = soup.findAll('div', class_="story_item")
+    if (manga_data_list == []):
         print("Nothing found on mangakakalot, please retry your search or select from another source")
         return
     # process data and then create a entry in mangadata.json
+    for i in range(len(manga_data_list)):
+        title = manga_data_list[i].find('h3', class_="story_name").text
+        title = title.replace('\n', "").replace('\t', "").strip()
+        list_num = i+1
+        print(str(list_num) + ". " + title)
 
 
 def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
@@ -359,8 +363,9 @@ def main():
     print("1. View manga list")
     print("2. Search/Select Manga - Mangasee")
     print("3. Search/Select Manga - Mangakakalot")
-    print("3. Update Manga data")
-    print("4. Download Manga")
+    print("4. Update Manga data")
+    print("5. Download Manga - Mangasee")
+    print("6. Download Manga - Mangakakalot")
 
     selection = input()
 
@@ -379,9 +384,6 @@ def main():
             download_manga_mk()
         case _:
             print("Oops!")
-
-    # delete entry
-    # remove entry (drop a title) - or just add a "DROPPED" tag which ignores all other commands
 
 
 main()
