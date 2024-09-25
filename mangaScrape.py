@@ -13,10 +13,15 @@ options.add_argument("--headless=new")
 options.add_argument("--log-level=3")
 driver = webdriver.Chrome(options=options)
 mangaSeeBase = "https://mangasee123.com"
-mangakakalotBase = "https://https://mangakakalot.com"
-headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+mangakakalotBase = "https://mangakakalot.com"
+headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.3"
 
 BASE_DLPATH = "D:/MANGA STORAGE"
+
+
+def clean_and_strip(item):
+    item = item.replace('\n', "").replace('\t', "").strip()
+    return item
 
 
 def search_manga_ms():
@@ -74,40 +79,73 @@ def search_manga_mk():
     # process data and then create a entry in mangadata.json
     for i in range(len(manga_data_list)):
         title = manga_data_list[i].find('h3', class_="story_name").text
-        title = title.replace('\n', "").replace('\t', "").strip()
+        title = clean_and_strip(title)
         list_num = i+1
         print(str(list_num) + ". " + title)
     selected_manga = input("Select a manga from the given list: ")
     if 0 <= int(selected_manga)-1 <= len(manga_data_list):
         title = manga_data_list[int(
-            selected_manga)-1].find('h3', class_="story_name").text
-        title = title.replace('\n', "").replace('\t', "").strip()
-        print("You have selected " +
-              title + "! ")
-        # gather and clean available data
-        # title, lastUpdated, author, genres, lastChapter,
-        #    {
-        # "author": "Bread-Eating Squirrel,  DJ Gonglyong",
-        # "released": "2021",
-        # "status": "Ongoing (Scan), Ongoing (Publish)",
-        # "lastChapter": "88",
-        # "lastUpdated": "08/23/2024",
-        # "translation": "Official Translation",
-        # "title": "Demon Devourer",
-        # "genres": [
-        #    "DJ Gonglyong",
-        #    "Action",
-        #    "Drama",
-        #    "Fantasy",
-        #    "Shounen"
-        # ],
-        # "type": "",
-        # "link": "https://mangasee123.com/manga/Talent-Swallowing-Magician",
-        # "source": "https://mangasee123.com",
-        # "lastRipped": "/read-online/Talent-Swallowing-Magician-chapter-75.html"
+            selected_manga)-1].find('h3', class_="story_name")
+        story_link = title.find('a')['href']
+        title = clean_and_strip(title.text)
+        print("You have selected " + title + "! ")
+        print(manga_data_list[int(selected_manga)-1])
+        story_item_right = manga_data_list[int(
+            selected_manga)-1].find('div', class_="story_item_right")
+        story_latest_chapter = story_item_right.find(
+            'em', class_="story_chapter").text
+        story_latest_chapter = clean_and_strip(story_latest_chapter)
+        story_data = story_item_right.findAll("span")
+        story_author = clean_and_strip(story_data[0].text.split(':')[1])
+        story_last_updated = clean_and_strip(story_data[1].text.split(':')[1])
+        # print(title)
+        # print(story_latest_chapter)
+        # print(story_author)
+        # print(story_last_updated)
+        # print(mangakakalotBase)
+        # print(story_link)
+        genres, status = get_genre_status(story_link)
+        # title, latest chapter, author, last updated, source, link, status genre nato, need more work done to do it on main domain
+        # N/A: released, translation, type
     else:
         print("Please select a valid item from the list")
         return
+
+
+def get_genre_status(link):
+    status = -1
+    genre_list = []
+    driver.get(link)
+    domain = link.split("/manga")
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    print(domain[0])
+    # multiple domains that the manga redirects to
+    if (domain[0] == "https://mangakakalot.com"):
+        container = soup.find("ul", class_="manga-info-text")
+    if (domain[0] == "https://chapmanganato.to"):
+        container = soup.find("table", class_="variations-tableInfo")
+        container = container.findAll('tr')
+        for i in range(len(container)):
+            # find first table data in each row with the tag "status and genres"
+            td = container[i].find('td')
+            td_desc = clean_and_strip(td.text)
+            if (td_desc == 'Status :'):
+                status = container[i].findAll('td')
+                status = clean_and_strip(status[1].text)
+            elif (td_desc == 'Genres :'):
+                genre_group = container[i].findAll('td')
+                genre_group = genre_group[1].findAll('a')
+                for item in range(len(genre_group)):
+                    genre_list.append(genre_group[item].text)
+    return genre_list, status
+
+
+def mk_nato_page(link):
+    print('a')
+
+
+def mk_main_page(link):
+    print('a')
 
 
 def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
@@ -121,13 +159,11 @@ def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, 
         if '·' in raw_manga_data[i].text:
             extraneous_char = raw_manga_data[i].text.split('·')
             for j in range(len(extraneous_char)):
-                extraneous_char[j] = extraneous_char[j].replace(
-                    '\n', '').replace('\t', '')
+                extraneous_char[j] = clean_and_strip(extraneous_char[j])
                 cleanData.append(extraneous_char[j])
             continue
         else:
-            cleanData.append(
-                raw_manga_data[i].text.replace('\n', '').replace('\t', ''))
+            cleanData.append(clean_and_strip(raw_manga_data[i].text))
     cleanData.append(selectedTitle)
     for i in range(len(manga_genre_tags)):
         # strip of leading and trailing spaces,
@@ -212,6 +248,8 @@ def update_entry():
 def download_manga_mk():
     print('a')
 # MANGASEE
+
+# our "find manga" portion needs to verify that the selected manga is for mangasee
 
 
 def download_manga_ms():
