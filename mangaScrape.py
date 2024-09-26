@@ -68,6 +68,9 @@ def search_manga_ms():
 
 def search_manga_mk():
     user_manga = input("Enter manga: ")
+    if " " in user_manga:
+        # replace space with _ for url parameters
+        user_manga = user_manga.replace(" ", "_")
     # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
     search_url = "https://mangakakalot.com/search/story/" + user_manga
     driver.get(search_url)
@@ -122,6 +125,12 @@ def get_genre_status(link):
     # multiple domains that the manga redirects to
     if (domain[0] == "https://mangakakalot.com"):
         container = soup.find("ul", class_="manga-info-text")
+        list_items = container.findAll('li')
+        for i in range(len(list_items)):
+            if (list_items[i].text == "Genres"):
+                print("Found Genres")
+            if (list_items[i].split(":")[0] == "Status"):
+                print("Found status")
     if (domain[0] == "https://chapmanganato.to"):
         container = soup.find("table", class_="variations-tableInfo")
         container = container.findAll('tr')
@@ -138,14 +147,6 @@ def get_genre_status(link):
                 for item in range(len(genre_group)):
                     genre_list.append(genre_group[item].text)
     return genre_list, status
-
-
-def mk_nato_page(link):
-    print('a')
-
-
-def mk_main_page(link):
-    print('a')
 
 
 def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
