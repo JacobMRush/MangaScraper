@@ -10,11 +10,11 @@ from random import randint
 
 options = ChromeOptions()
 options.add_argument("--headless=new")
-options.add_argument("--log-level=3")
+# options.add_argument("--log-level=3")
 driver = webdriver.Chrome(options=options)
 mangaSeeBase = "https://mangasee123.com"
 mangakakalotBase = "https://mangakakalot.com"
-headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.3"
+headers = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
 
 BASE_DLPATH = "D:/MANGA STORAGE"
 
@@ -68,6 +68,9 @@ def search_manga_ms():
 
 def search_manga_mk():
     user_manga = input("Enter manga: ")
+    if " " in user_manga:
+        # replace space with _ for url parameters
+        user_manga = user_manga.replace(" ", "_")
     # seperate by inserting base url at the first index before adding any data, will check for domain change, and will label as such to user
     search_url = "https://mangakakalot.com/search/story/" + user_manga
     driver.get(search_url)
@@ -90,23 +93,42 @@ def search_manga_mk():
         title = clean_and_strip(title.text)
         print("You have selected " + title + "! ")
         print(manga_data_list[int(selected_manga)-1])
-        story_item_right = manga_data_list[int(
-            selected_manga)-1].find('div', class_="story_item_right")
-        story_latest_chapter = story_item_right.find(
-            'em', class_="story_chapter").text
-        story_latest_chapter = clean_and_strip(story_latest_chapter)
-        story_data = story_item_right.findAll("span")
-        story_author = clean_and_strip(story_data[0].text.split(':')[1])
-        story_last_updated = clean_and_strip(story_data[1].text.split(':')[1])
-        # print(title)
-        # print(story_latest_chapter)
-        # print(story_author)
-        # print(story_last_updated)
-        # print(mangakakalotBase)
-        # print(story_link)
-        genres, status = get_genre_status(story_link)
-        # title, latest chapter, author, last updated, source, link, status genre nato, need more work done to do it on main domain
-        # N/A: released, translation, type
+        insertToFile = input("Would you like to insert to mangaData? : Y/N")
+        if insertToFile == "y" or insertToFile == "Y":
+            story_item_right = manga_data_list[int(
+                selected_manga)-1].find('div', class_="story_item_right")
+            story_latest_chapter = story_item_right.find(
+                'em', class_="story_chapter").text
+            story_latest_chapter = clean_and_strip(story_latest_chapter)
+            story_data = story_item_right.findAll("span")
+            story_author = clean_and_strip(story_data[0].text.split(':')[1])
+            story_last_updated = clean_and_strip(
+                story_data[1].text.split(':')[1])
+            # print(title)
+            # print(story_latest_chapter)
+            # print(story_author)
+            # print(story_last_updated)
+            # print(mangakakalotBase)
+            # print(story_link)
+            # print(genres)
+            # print(status)
+            genres, status = get_genre_status(story_link)
+            mk_entry = {
+                "author": story_author,
+                "status": status,
+                "lastChapter": story_latest_chapter,
+                "lastUpdated": story_last_updated,
+                "translation": "N/A",
+                "title": title,
+                "genres": genres,
+                "type": "",
+                "link": story_link,
+                "source": mangakakalotBase,
+                "lastRipped": -1
+            }
+            insert_to_file(mk_entry)
+        else:
+            print("Item not added to list, incorrect input or selected no")
     else:
         print("Please select a valid item from the list")
         return
@@ -118,10 +140,21 @@ def get_genre_status(link):
     driver.get(link)
     domain = link.split("/manga")
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-    print(domain[0])
     # multiple domains that the manga redirects to
-    if (domain[0] == "https://mangakakalot.com"):
+    # mangakakalot has '/manga' in it, which results in a bad split, which is resolved in my check
+    if (domain[0] + '/manga' + domain[1] == "https://mangakakalot.com"):
         container = soup.find("ul", class_="manga-info-text")
+        list_items = container.findAll('li')
+        for i in range(len(list_items)):
+            item = clean_and_strip(list_items[i].text)
+            if "Genres" in item:
+                item = item.split(' :')
+                genre_list = item[1].split(', ')
+                genre_list[len(genre_list) -
+                           1] = genre_list[len(genre_list)-1].replace(",", "")
+            if "Status" in item:
+                item = item.split(': ')
+                status = item[1]
     if (domain[0] == "https://chapmanganato.to"):
         container = soup.find("table", class_="variations-tableInfo")
         container = container.findAll('tr')
@@ -138,14 +171,6 @@ def get_genre_status(link):
                 for item in range(len(genre_group)):
                     genre_list.append(genre_group[item].text)
     return genre_list, status
-
-
-def mk_nato_page(link):
-    print('a')
-
-
-def mk_main_page(link):
-    print('a')
 
 
 def create_entry_ms(selectedTitle, selectedManga, manga_genre_tags, search_url, base_url):
